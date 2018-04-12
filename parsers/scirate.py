@@ -8,6 +8,20 @@ from bs4 import BeautifulSoup
 
 
 def scrape_scirate(params):
+    """
+    Main scraping function for Scirate.
+
+    Inputs:
+        - params: dict, specify search period, archive type, and method. Keys are:
+            - start: dict, contains starting date for search. Keys are: day, month, year
+            - end: dict, contains end date for search. Keys are: day, month, year
+            - method: string, either of "with" or "without" to specify if you want to obtain abstract
+            - archive: string, archive type. Currently only "quant-ph" was tested
+
+    Outputs:
+        - results: list, a list of dict for each day within a specified period
+    """
+
     url_start = get_url(params['start'], params['archive'])
     url_end = get_url(params['end'], params['archive'])
     date_end = parse_date(url_end)
