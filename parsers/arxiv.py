@@ -5,6 +5,9 @@ import requests
 from bs4 import BeautifulSoup
 
 
+# TODO: add an option for obtaining abstract for each paper
+
+
 def scrape_arxiv(params):
     url_start = get_url(params['start'], params['archive'], params['method'])
     date_end = parse_date(params['end'])

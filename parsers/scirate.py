@@ -4,6 +4,9 @@ import requests
 from bs4 import BeautifulSoup
 
 
+# TODO: add an option for obtaining abstract for each paper
+
+
 def scrape_scirate(params):
     url_start = get_url(params['start'], params['archive'])
     url_end = get_url(params['end'], params['archive'])
