@@ -48,33 +48,6 @@ def scrape_arxiv(params):
     return results
 
 
-def parse_date(date):
-    # parse date from a given parameters to generate date string
-    if date['day'] < 10:
-        day = '0' + str(date['day'])
-    else:
-        day = str(date['day'])
-    if date['month'] < 10:
-        month = '0' + str(date['month'])
-    else:
-        month = str(date['month'])
-    year = str(date['year'])
-    return 'day_%s_%s_%s' % (year, month, day)
-
-
-def get_url(date, archive, method):
-    # url generation given parameters for accessing the first page
-    url = 'https://arxiv.org/catchup?'
-    url += 'smonth=%d&'  % date['month']
-    url += 'sday=%d&'    % date['day']
-    url += 'group=grp_&'
-    url += 'archive=%s&' % archive
-    url += 'num=50&'
-    url += 'method=%s&'  % method
-    url += 'syear=%d'    % date['year']
-    return url
-
-
 def parse_page(soup, date_end):
     # parse html (soup) and return papers and next page html
     results = []
@@ -141,6 +114,33 @@ def get_papers(soup):
         papers.append(paper_info)
 
     return papers
+
+
+def parse_date(date):
+    # parse date from a given parameters to generate date string
+    if date['day'] < 10:
+        day = '0' + str(date['day'])
+    else:
+        day = str(date['day'])
+    if date['month'] < 10:
+        month = '0' + str(date['month'])
+    else:
+        month = str(date['month'])
+    year = str(date['year'])
+    return 'day_%s_%s_%s' % (year, month, day)
+
+
+def get_url(date, archive, method):
+    # url generation given parameters for accessing the first page
+    url = 'https://arxiv.org/catchup?'
+    url += 'smonth=%d&'  % date['month']
+    url += 'sday=%d&'    % date['day']
+    url += 'group=grp_&'
+    url += 'archive=%s&' % archive
+    url += 'num=50&'
+    url += 'method=%s&'  % method
+    url += 'syear=%d'    % date['year']
+    return url
 
 
 if __name__ == '__main__':
