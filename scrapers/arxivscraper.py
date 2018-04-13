@@ -77,27 +77,8 @@ class ArchiveScraper:
                        'order': i}
                       for i in indices]
 
+        # parallel paper information retrieval for all the papers in a day
         papers = Parallel(n_jobs=-1)([delayed(self.get_paper_info)(paper) for paper in paper_list])
-
-        papers = []
-        for i, (paper, meta) in enumerate(zip(paper_list, meta_list)):
-            # if meta data says it is either of "Replaced" or "Cross-List", ignore the paper
-            meta_info = meta.find('span', class_='list-identifier')
-            if 'replaced' in meta_info.text or 'cross-list' in meta_info.text:
-                continue
-
-            # get title and authors
-            title = paper.find('div', class_='list-title mathjax').text.split('\nTitle: ')[1].split('\n')[0]
-            author_list = np.array(paper.find('div', class_='list-authors').text.split('\n'))[2:-1]
-            authors = []
-            for author in author_list:
-                authors.append(author.split(',')[0])
-            paper_info = {
-                'title': title,
-                'authors': authors,
-                'order': i
-            }
-            papers.append(paper_info)
 
         return papers
 
@@ -108,6 +89,7 @@ class ArchiveScraper:
         for author in author_list:
             authors.append(author.split(',')[0])
 
+        # parse the paper's abstract page
         paper_href = paper['identifier'].find('a', title='Abstract').get_attribute_list('href')[0]
         paper_link = self.url_header + paper_href
         response = requests.get(paper_link)
@@ -123,6 +105,7 @@ class ArchiveScraper:
 
         num_versions = len(soup.find_all('b'))
 
+        # paper submit time and paper size
         latest_submit = soup.find('div', class_='submission-history').text.split('\n')[-2]
         submit_time = re.findall('\d+:\d+:\d+', latest_submit)[0]
         size = re.findall('\d+kb', latest_submit)[0]
