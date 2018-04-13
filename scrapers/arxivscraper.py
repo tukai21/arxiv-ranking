@@ -3,6 +3,7 @@ import time
 import pickle
 import numpy as np
 from joblib import Parallel, delayed
+from multiprocessing import Pool, cpu_count
 import requests
 from bs4 import BeautifulSoup
 
@@ -81,8 +82,14 @@ class ArchiveScraper:
                        'order': i}
                       for i in indices]
 
+        # TODO: Make parallel information retrieval work (now maximum recursion depth error occurs with Parallel)
         # parallel paper information retrieval for all the papers in a day
-        papers = Parallel(n_jobs=-1)([delayed(self.get_paper_info)(paper) for paper in paper_list])
+        # p = Pool(cpu_count())
+        # papers = p.map(self.get_paper_info, paper_list)
+        # p.close()
+        # papers = Parallel(n_jobs=-1)([delayed(self.get_paper_info)(self, paper) for paper in paper_list])
+
+        papers = list(map(self.get_paper_info, paper_list))
 
         return papers
 
@@ -113,8 +120,8 @@ class ArchiveScraper:
         latest_submit = soup.find('div', class_='submission-history').text.split('\n')[-2]
         match = re.findall(self.date_pattern, latest_submit)
         if len(match) > 0:
-            submit_weekday = re.findall(self.weekday_pattern, match[0])
-            submit_time = re.findall(self.time_pattern, match[0])
+            submit_weekday = re.findall(self.weekday_pattern, match[0])[0]
+            submit_time = re.findall(self.time_pattern, match[0])[0]
         else:
             submit_weekday = 'none'
             submit_time = 'none'
@@ -171,3 +178,21 @@ class ArchiveScraper:
         url += 'syear=%d' % date['year']
         return url
 
+
+if __name__ == '__main__':
+    params = {'start': {'year': 2018, 'month': 4, 'day': 11},
+              'end': {'year': 2018, 'month': 4, 'day': 12},
+              'archive': 'quant-ph',
+              'method': 'without'
+              }
+
+    scraper = ArchiveScraper(params)
+    results = scraper.start_scraping()
+    print('# of days: ', len(results))
+    print('First date: ', results[0]['date'])
+    print('First paper of the first day: ', results[0]['papers'][0])
+    print('Last date: ', results[-1]['date'])
+    print('First paper of the last day: ', results[-1]['papers'][0])
+
+    with open('../data/arxiv-2018-04-11-2018-04-11.pkl', 'wb') as f:
+        pickle.dump(results, f)
