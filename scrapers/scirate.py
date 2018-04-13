@@ -81,7 +81,7 @@ def get_papers_scirate(soup):
         for author in author_list:
             authors.append(author.strip())
 
-        scite_count = int(paper.find('button', class_='btn btn-default count'))
+        scite_count = int(paper.find('button', class_='btn btn-default count').text)
 
         paper_info = {
             'title': title,
@@ -106,8 +106,8 @@ def get_next_page(soup):
 
 
 if __name__ == '__main__':
-    params = {'start': {'year': 2018, 'month': 3, 'day': 1},
-              'end': {'year': 2018, 'month': 4, 'day': 1},
+    params = {'start': {'year': 2018, 'month': 4, 'day': 11},
+              'end': {'year': 2018, 'month': 4, 'day': 12},
               'archive': 'quant-ph',
               'method': 'without'
               }
@@ -119,5 +119,5 @@ if __name__ == '__main__':
     print('Last date: ', results[-1]['date'])
     print('First paper of the last day: ', results[-1]['papers'][0])
 
-    with open('../data/scirate-2018-03-01-2018-04-01.pkl', 'wb') as f:
+    with open('../data/scirate-2018-04-11-2018-04-12.pkl', 'wb') as f:
         pickle.dump(results, f)
