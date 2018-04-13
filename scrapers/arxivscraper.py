@@ -15,6 +15,10 @@ class ArchiveScraper:
         self.method = params['method']
         self.archive = params['archive']
 
+        self.date_pattern = '\w{3}, \d+ \w{3} 20\d{2} \d{2}:\d{2}:\d{2}'
+        self.weekday_pattern = r'(Mon|Tue|Wed|Thu|Fri|Sat|Sun)'
+        self.time_pattern = '\d{2}:\d{2}:\d{2}'
+
     def start_scraping(self):
         # obtain starting url
         url_start = self._get_url(self.start_date, self.archive, self.method)
@@ -107,8 +111,14 @@ class ArchiveScraper:
 
         # paper submit time and paper size
         latest_submit = soup.find('div', class_='submission-history').text.split('\n')[-2]
-        submit_time = re.findall('\d+:\d+:\d+', latest_submit)[0]
-        size = re.findall('\d+kb', latest_submit)[0]
+        match = re.findall(self.date_pattern, latest_submit)
+        if len(match) > 0:
+            submit_weekday = re.findall(self.weekday_pattern, match[0])
+            submit_time = re.findall(self.time_pattern, match[0])
+        else:
+            submit_weekday = 'none'
+            submit_time = 'none'
+        size = re.findall('[0-9]+[a-z]b', latest_submit)[0]
 
         paper_info = {
             'title': title,
@@ -116,6 +126,7 @@ class ArchiveScraper:
             'order': paper['order'],
             # 'num_pages': num_pages,
             'num_versions': num_versions,
+            'submit_weekday': submit_weekday,
             'submit_time': submit_time,
             'size': size,
             'paper_link': paper_link
