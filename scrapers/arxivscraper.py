@@ -1,4 +1,5 @@
 import re
+import sys
 import time
 import pickle
 import numpy as np
@@ -8,6 +9,9 @@ import requests
 from bs4 import BeautifulSoup
 
 
+sys.setrecursionlimit(100000)
+
+
 class ArchiveScraper:
     def __init__(self, params):
         self.url_header = 'https://arxiv.org'
@@ -15,6 +19,7 @@ class ArchiveScraper:
         self.end_date = params['end']
         self.method = params['method']
         self.archive = params['archive']
+        self.parallel = params['parallel']
 
         self.date_pattern = '\w{3}, \d+ \w{3} 20\d{2} \d{2}:\d{2}:\d{2}'
         self.weekday_pattern = r'(Mon|Tue|Wed|Thu|Fri|Sat|Sun)'
@@ -82,14 +87,11 @@ class ArchiveScraper:
                        'order': i}
                       for i in indices]
 
-        # TODO: Make parallel information retrieval work (now maximum recursion depth error occurs with Parallel)
         # parallel paper information retrieval for all the papers in a day
-        # p = Pool(cpu_count())
-        # papers = p.map(self.get_paper_info, paper_list)
-        # p.close()
-        # papers = Parallel(n_jobs=-1)([delayed(self.get_paper_info)(self, paper) for paper in paper_list])
-
-        papers = list(map(self.get_paper_info, paper_list))
+        if self. parallel:
+            papers = Parallel(n_jobs=-1)([delayed(self.get_paper_info)(paper) for paper in paper_list])
+        else:
+            papers = list(map(self.get_paper_info, paper_list))
 
         return papers
 
@@ -183,7 +185,8 @@ if __name__ == '__main__':
     params = {'start': {'year': 2018, 'month': 4, 'day': 11},
               'end': {'year': 2018, 'month': 4, 'day': 12},
               'archive': 'quant-ph',
-              'method': 'without'
+              'method': 'without',
+              'parallel': False
               }
 
     scraper = ArchiveScraper(params)
