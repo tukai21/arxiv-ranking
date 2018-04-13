@@ -1,0 +1,9 @@
+{
+  "start": {"year": 2018, "month": 1, "day": 1},
+  "end": {"year": 2018, "month": 3, "day": 31},
+  "archive": "quant-ph",
+  "method": "without",
+  "parallel": true,
+  "save_by_day": true,
+  "save_dir": "./data/arxiv/"
+}

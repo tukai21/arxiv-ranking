@@ -1,10 +1,11 @@
 import re
+import os
 import sys
+import json
 import time
 import pickle
 import numpy as np
 from joblib import Parallel, delayed
-from multiprocessing import Pool, cpu_count
 import requests
 from bs4 import BeautifulSoup
 
@@ -12,7 +13,7 @@ from bs4 import BeautifulSoup
 sys.setrecursionlimit(100000)
 
 
-class ArchiveScraper:
+class ArxivScraper:
     def __init__(self, params):
         self.url_header = 'https://arxiv.org'
         self.start_date = params['start']
@@ -20,6 +21,8 @@ class ArchiveScraper:
         self.method = params['method']
         self.archive = params['archive']
         self.parallel = params['parallel']
+        self.save_by_day = params['save_by_day']
+        self.save_dir = params['save_dir']
 
         self.date_pattern = '\w{3}, \d+ \w{3} 20\d{2} \d{2}:\d{2}:\d{2}'
         self.weekday_pattern = r'(Mon|Tue|Wed|Thu|Fri|Sat|Sun)'
@@ -67,10 +70,16 @@ class ArchiveScraper:
 
             paper_data = h2.find_next_siblings()[0]
             papers = self.get_papers(paper_data)
-            results.append({
+            res = {
                 'date': date,
                 'papers': papers
-            })
+            }
+            if self.save_by_day:
+                save_path = os.path.join(self.save_dir, date + '_arxiv.json')
+                with open(save_path, 'w') as f:
+                    json.dump(res, f)
+            else:
+                results.append(res)
 
         next_page = self.get_next_page(soup)
         return results, next_page
@@ -182,14 +191,17 @@ class ArchiveScraper:
 
 
 if __name__ == '__main__':
+    # !!! parameters for ArchiveScraper are stored in `arxiv_config.json` under the `configs` directory.
     params = {'start': {'year': 2018, 'month': 4, 'day': 11},
               'end': {'year': 2018, 'month': 4, 'day': 12},
               'archive': 'quant-ph',
               'method': 'without',
-              'parallel': False
+              'parallel': False,
+              'save_by_day': False,
+              'save_path': ''
               }
 
-    scraper = ArchiveScraper(params)
+    scraper = ArxivScraper(params)
     results = scraper.start_scraping()
     print('# of days: ', len(results))
     print('First date: ', results[0]['date'])
