@@ -80,10 +80,14 @@ def get_papers_scirate(soup):
         authors = []
         for author in author_list:
             authors.append(author.strip())
+
+        scite_count = int(paper.find('button', class_='btn btn-default count'))
+
         paper_info = {
             'title': title,
             'authors': authors,
-            'rank': i
+            'rank': i,
+            'scite_count': scite_count
         }
         papers.append(paper_info)
 
