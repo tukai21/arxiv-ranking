@@ -1,11 +1,13 @@
 import time
 import pickle
+import warnings
 import numpy as np
 import requests
 from bs4 import BeautifulSoup
 
 
-# TODO: add an option for obtaining abstract for each paper
+msg = 'This module is deprecated. Users are recommended to use "arxivscraper.py" instead.'
+warnings.warn(msg, warnings, DeprecationWarning, stacklevel=2)
 
 
 def scrape_arxiv(params):
