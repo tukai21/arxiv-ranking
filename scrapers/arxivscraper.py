@@ -67,7 +67,7 @@ class ArxivScraper:
             results += res
 
             # this is not to send requests too much - avoid IP ban
-            time.sleep(0.2)
+            time.sleep(0.5)
 
         return results
 
@@ -135,7 +135,7 @@ class ArxivScraper:
         response = requests.get(paper_link)
 
         # this is not to send requests too much - avoid IP ban
-        time.sleep(0.2)
+        time.sleep(0.5)
 
         soup = BeautifulSoup(response.text, 'lxml')
 
@@ -156,15 +156,15 @@ class ArxivScraper:
         num_versions = len(soup.find_all('b'))
 
         # paper submit time and paper size
-        latest_submit = soup.find('div', class_='submission-history').text.split('\n')[-2]
-        match = re.findall(self.date_pattern, latest_submit)
+        submit_info = soup.find('div', class_='submission-history').text.split('\n')[4]
+        match = re.findall(self.date_pattern, submit_info)
         if len(match) > 0:
             submit_weekday = re.findall(self.weekday_pattern, match[0])[0]
             submit_time = re.findall(self.time_pattern, match[0])[0]
         else:
             submit_weekday = 'none'
             submit_time = 'none'
-        size = re.findall('[0-9]+[a-z]b', latest_submit)[0]
+        size = re.findall('[0-9]+[a-z]b', submit_info)[0]
 
         paper_info = {
             'title': title,
