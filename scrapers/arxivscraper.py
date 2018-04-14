@@ -14,6 +14,24 @@ sys.setrecursionlimit(100000)
 
 
 class ArxivScraper:
+    """
+    Scraping agent class for Arxiv.
+
+    Inputs:
+        - params: dict, specifies scraping options. Keys are:
+            - start: dict, contains starting date for search. Keys are: day, month, year
+            - end: dict, contains end date for search. Keys are: day, month, year
+            - method: string, either of "with" or "without" to specify if you want to obtain abstract
+            - archive: string, archive type. Currently only "quant-ph" was tested
+            - parallel: bool, whether it parses each paper info in parallel
+            - save_by_day: bool, whether it saves papers data day by day. If true, it saves the data in a json format
+            - save_dir: string, the directory you save your data to. Only matters when save_by_day is true
+
+    Outputs:
+        - results: list, a list of dict for each day within a specified period. Empty when save_by_day is set true
+
+
+    """
     def __init__(self, params):
         self.url_header = 'https://arxiv.org'
         self.start_date = params['start']
@@ -163,7 +181,7 @@ class ArxivScraper:
         next_page = BeautifulSoup(response.text, 'lxml')
         return next_page
 
-    # utility functions
+    # helper methods
     def _parse_date(self, date):
         # parse date from a given parameters to generate date string
         if date['day'] < 10:
@@ -198,7 +216,7 @@ if __name__ == '__main__':
               'method': 'without',
               'parallel': False,
               'save_by_day': False,
-              'save_path': ''
+              'save_dir': ''
               }
 
     scraper = ArxivScraper(params)
