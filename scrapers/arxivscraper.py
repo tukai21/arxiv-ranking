@@ -21,7 +21,7 @@ class ArxivScraper:
         - params: dict, specifies scraping options. Keys are:
             - start: dict, contains starting date for search. Keys are: day, month, year
             - end: dict, contains end date for search. Keys are: day, month, year
-            - method: string, either of "with" or "without" to specify if you want to obtain abstract
+            - abstract: bool, specify if you want to obtain abstract
             - archive: string, archive type. Currently only "quant-ph" was tested
             - parallel: bool, whether it parses each paper info in parallel
             - save_by_day: bool, whether it saves papers data day by day. If true, it saves the data in a json format
@@ -36,7 +36,7 @@ class ArxivScraper:
         self.url_header = 'https://arxiv.org'
         self.start_date = params['start']
         self.end_date = params['end']
-        self.method = params['method']
+        self.abstract = params['abstract']
         self.archive = params['archive']
         self.parallel = params['parallel']
         self.save_by_day = params['save_by_day']
@@ -48,7 +48,7 @@ class ArxivScraper:
 
     def start_scraping(self):
         # obtain starting url
-        url_start = self._get_url(self.start_date, self.archive, self.method)
+        url_start = self._get_url(self.start_date)
 
         # compute end date for search
         date_end = self._parse_date(self.end_date)
@@ -135,6 +135,12 @@ class ArxivScraper:
         response = requests.get(paper_link)
         soup = BeautifulSoup(response.text, 'lxml')
 
+        # get abstract when the abstract option is set true
+        abstract = ''
+        if self.abstract:
+            for s in soup.find('blockquote').text.split('\n'):
+                abstract += s
+
         # comments = soup.find('td', class_='tablecell comments mathjax')
         # if comments:
         #     text = comments.text
@@ -159,6 +165,7 @@ class ArxivScraper:
         paper_info = {
             'title': title,
             'authors': authors,
+            'abstract': abstract,
             'order': paper['order'],
             # 'num_pages': num_pages,
             'num_versions': num_versions,
@@ -195,15 +202,15 @@ class ArxivScraper:
         year = str(date['year'])
         return 'day_%s_%s_%s' % (year, month, day)
 
-    def _get_url(self, date, archive, method):
+    def _get_url(self, date):
         # url generation given parameters for accessing the first page
         url = 'https://arxiv.org/catchup?'
         url += 'smonth=%d&' % date['month']
         url += 'sday=%d&' % date['day']
         url += 'group=grp_&'
-        url += 'archive=%s&' % archive
+        url += 'archive=%s&' % self.archive
         url += 'num=50&'
-        url += 'method=%s&' % method
+        url += 'method=without&'
         url += 'syear=%d' % date['year']
         return url
 
@@ -213,7 +220,7 @@ if __name__ == '__main__':
     params = {'start': {'year': 2018, 'month': 4, 'day': 11},
               'end': {'year': 2018, 'month': 4, 'day': 12},
               'archive': 'quant-ph',
-              'method': 'without',
+              'abstract': True,
               'parallel': False,
               'save_by_day': False,
               'save_dir': ''
