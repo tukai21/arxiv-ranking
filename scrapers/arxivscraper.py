@@ -67,7 +67,7 @@ class ArxivScraper:
             results += res
 
             # this is not to send requests too much - avoid IP ban
-            time.sleep(0.1)
+            time.sleep(0.2)
 
         return results
 
@@ -133,6 +133,10 @@ class ArxivScraper:
         paper_href = paper['identifier'].find('a', title='Abstract').get_attribute_list('href')[0]
         paper_link = self.url_header + paper_href
         response = requests.get(paper_link)
+
+        # this is not to send requests too much - avoid IP ban
+        time.sleep(0.2)
+
         soup = BeautifulSoup(response.text, 'lxml')
 
         # get abstract when the abstract option is set true
@@ -217,8 +221,8 @@ class ArxivScraper:
 
 if __name__ == '__main__':
     # !!! parameters for ArchiveScraper are stored in `arxiv_config.json` under the `configs` directory.
-    params = {'start': {'year': 2018, 'month': 4, 'day': 11},
-              'end': {'year': 2018, 'month': 4, 'day': 12},
+    params = {'start': {'year': 2018, 'month': 3, 'day': 13},
+              'end': {'year': 2018, 'month': 3, 'day': 14},
               'archive': 'quant-ph',
               'abstract': True,
               'parallel': False,
@@ -234,5 +238,5 @@ if __name__ == '__main__':
     print('Last date: ', results[-1]['date'])
     print('First paper of the last day: ', results[-1]['papers'][0])
 
-    with open('../data/arxiv-2018-04-11-2018-04-11.pkl', 'wb') as f:
-        pickle.dump(results, f)
+    # with open('../data/arxiv-2018-04-11-2018-04-11.pkl', 'wb') as f:
+    #     pickle.dump(results, f)
