@@ -99,3 +99,6 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+* json dump files of paper info
+day_*.json

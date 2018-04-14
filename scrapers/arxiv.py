@@ -1,11 +1,13 @@
 import time
 import pickle
+import warnings
 import numpy as np
 import requests
 from bs4 import BeautifulSoup
 
 
-# TODO: add an option for obtaining abstract for each paper
+msg = 'This module is deprecated. Users are recommended to use "arxivscraper.py" instead.'
+warnings.warn(msg, warnings, DeprecationWarning, stacklevel=2)
 
 
 def scrape_arxiv(params):
@@ -46,33 +48,6 @@ def scrape_arxiv(params):
         time.sleep(0.1)
 
     return results
-
-
-def parse_date(date):
-    # parse date from a given parameters to generate date string
-    if date['day'] < 10:
-        day = '0' + str(date['day'])
-    else:
-        day = str(date['day'])
-    if date['month'] < 10:
-        month = '0' + str(date['month'])
-    else:
-        month = str(date['month'])
-    year = str(date['year'])
-    return 'day_%s_%s_%s' % (year, month, day)
-
-
-def get_url(date, archive, method):
-    # url generation given parameters for accessing the first page
-    url = 'https://arxiv.org/catchup?'
-    url += 'smonth=%d&'  % date['month']
-    url += 'sday=%d&'    % date['day']
-    url += 'group=grp_&'
-    url += 'archive=%s&' % archive
-    url += 'num=50&'
-    url += 'method=%s&'  % method
-    url += 'syear=%d'    % date['year']
-    return url
 
 
 def parse_page(soup, date_end):
@@ -141,6 +116,33 @@ def get_papers(soup):
         papers.append(paper_info)
 
     return papers
+
+
+def parse_date(date):
+    # parse date from a given parameters to generate date string
+    if date['day'] < 10:
+        day = '0' + str(date['day'])
+    else:
+        day = str(date['day'])
+    if date['month'] < 10:
+        month = '0' + str(date['month'])
+    else:
+        month = str(date['month'])
+    year = str(date['year'])
+    return 'day_%s_%s_%s' % (year, month, day)
+
+
+def get_url(date, archive, method):
+    # url generation given parameters for accessing the first page
+    url = 'https://arxiv.org/catchup?'
+    url += 'smonth=%d&'  % date['month']
+    url += 'sday=%d&'    % date['day']
+    url += 'group=grp_&'
+    url += 'archive=%s&' % archive
+    url += 'num=50&'
+    url += 'method=%s&'  % method
+    url += 'syear=%d'    % date['year']
+    return url
 
 
 if __name__ == '__main__':

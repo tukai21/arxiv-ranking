@@ -1,10 +1,14 @@
+import os
 import time
+import json
 import pickle
+import warnings
 import requests
 from bs4 import BeautifulSoup
 
 
-# TODO: add an option for obtaining abstract for each paper
+msg = 'This module is deprecated. Users are recommended to use "sciratescraper.py" instead.'
+warnings.warn(msg, warnings, DeprecationWarning, stacklevel=2)
 
 
 def scrape_scirate(params):
@@ -37,10 +41,16 @@ def scrape_scirate(params):
             soup, date = get_next_page(soup)
             continue
         else:
-            results.append({
+            res = {
                 'date': date,
                 'papers': papers
-            })
+            }
+            if params['save_by_day']:
+                save_path = os.path.join(params['save_by_day'], date + '_scirate.json')
+                with open(save_path, 'w') as f:
+                    json.dump(res, f)
+            else:
+                results.append(res)
             soup, date = get_next_page(soup)
 
     return results
@@ -80,10 +90,14 @@ def get_papers_scirate(soup):
         authors = []
         for author in author_list:
             authors.append(author.strip())
+
+        scite_count = int(paper.find('button', class_='btn btn-default count').text)
+
         paper_info = {
             'title': title,
             'authors': authors,
-            'rank': i
+            'rank': i,
+            'scite_count': scite_count
         }
         papers.append(paper_info)
 
@@ -102,10 +116,12 @@ def get_next_page(soup):
 
 
 if __name__ == '__main__':
-    params = {'start': {'year': 2018, 'month': 3, 'day': 1},
-              'end': {'year': 2018, 'month': 4, 'day': 1},
+    params = {'start': {'year': 2018, 'month': 4, 'day': 11},
+              'end': {'year': 2018, 'month': 4, 'day': 12},
               'archive': 'quant-ph',
-              'method': 'without'
+              'method': 'without',
+              'save_by_day': False,
+              'save_dir': ''
               }
 
     results = scrape_scirate(params)
@@ -115,5 +131,5 @@ if __name__ == '__main__':
     print('Last date: ', results[-1]['date'])
     print('First paper of the last day: ', results[-1]['papers'][0])
 
-    with open('../data/scirate-2018-03-01-2018-04-01.pkl', 'wb') as f:
+    with open('../data/scirate-2018-04-11-2018-04-12.pkl', 'wb') as f:
         pickle.dump(results, f)
