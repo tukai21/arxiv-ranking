@@ -1,11 +1,8 @@
-import re
 import os
 import sys
 import json
 import time
 import pickle
-import numpy as np
-from joblib import Parallel, delayed
 import requests
 from bs4 import BeautifulSoup
 
