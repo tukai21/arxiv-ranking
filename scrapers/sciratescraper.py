@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import json
 import time
@@ -90,12 +91,14 @@ class ScirateScraper:
                 authors.append(author.strip())
 
             scite_count = int(paper.find('button', class_='btn btn-default count').text)
+            arxiv_id = re.findall(r'[0-9]{4}.[0-9]{5}', paper.find('div', class_='uid').text)[0]
 
             paper_info = {
                 'title': title,
                 'authors': authors,
                 'rank': i,
-                'scite_count': scite_count
+                'scite_count': scite_count,
+                'arxiv_id': arxiv_id
             }
             papers.append(paper_info)
 
