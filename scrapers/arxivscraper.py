@@ -42,9 +42,10 @@ class ArxivScraper:
         self.save_by_day = params['save_by_day']
         self.save_dir = params['save_dir']
 
-        self.date_pattern = '\w{3}, \d+ \w{3} 20\d{2} \d{2}:\d{2}:\d{2}'
+        self.date_pattern = r'\w{3}, \d+ \w{3} 20\d{2} \d{2}:\d{2}:\d{2}'
         self.weekday_pattern = r'(Mon|Tue|Wed|Thu|Fri|Sat|Sun)'
-        self.time_pattern = '\d{2}:\d{2}:\d{2}'
+        self.time_pattern = r'\d{2}:\d{2}:\d{2}'
+        self.id_pattern = r'[0-9]{4}.[0-9]{5}'
 
     def start_scraping(self):
         # obtain starting url
@@ -145,13 +146,8 @@ class ArxivScraper:
             for s in soup.find('blockquote').text.split('\n'):
                 abstract += s
 
-        # comments = soup.find('td', class_='tablecell comments mathjax')
-        # if comments:
-        #     text = comments.text
-        #     pages = re.findall('\d+ pages', text)[0]
-        #     num_pages = int(re.findall('\d+', pages)[0])
-        # else:
-        #     num_pages = -1  # missing value handling
+        # get paper arxiv id from the paper link
+        arxiv_id = re.findall(self.id_pattern, paper_href)
 
         num_versions = len(soup.find_all('b'))
 
@@ -171,12 +167,12 @@ class ArxivScraper:
             'authors': authors,
             'abstract': abstract,
             'order': paper['order'],
-            # 'num_pages': num_pages,
             'num_versions': num_versions,
             'submit_weekday': submit_weekday,
             'submit_time': submit_time,
             'size': size,
-            'paper_link': paper_link
+            'paper_link': paper_link,
+            'arxiv_id': arxiv_id
         }
         return paper_info
 
